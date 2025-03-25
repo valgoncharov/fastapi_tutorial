@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Annotated
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import select
 
 app = FastAPI()
 
@@ -77,8 +78,10 @@ async def add_book(data: BookAddSchema, session: SessionDep):
 
 
 @app.get("/sql_books", summary='База книг', tags=['Библиотека'])
-async def get_sql_book():
-    pass
+async def get_sql_book(session: SessionDep):
+    query = select(BookModel)
+    result = await session.execute(query)
+    return result.scalars().all()
 
 
 class BooksSchema(BaseModel):
